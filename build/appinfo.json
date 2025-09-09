@@ -1,0 +1,32 @@
+{
+    "targetPlatforms": [
+        "aplite", 
+        "basalt", 
+        "chalk", 
+        "diorite"
+    ], 
+    "displayName": "PeReader", 
+    "name": "PeReader", 
+    "messageKeys": {}, 
+    "companyName": "erimow", 
+    "enableMultiJS": true, 
+    "versionLabel": "1.0", 
+    "capabilities": [], 
+    "sdkVersion": "3", 
+    "appKeys": {}, 
+    "longName": "PeReader", 
+    "shortName": "PeReader", 
+    "watchapp": {
+        "watchface": false
+    }, 
+    "resources": {
+        "media": [
+            {
+                "type": "raw", 
+                "name": "BOOK_TXT", 
+                "file": "data/book.txt"
+            }
+        ]
+    }, 
+    "uuid": "851d53a9-a50f-429a-9ed5-56eb3ffad258"
+}
