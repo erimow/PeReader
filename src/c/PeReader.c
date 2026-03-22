@@ -46,30 +46,18 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   persist_write_int(PERSIST_KEY_PAGE, current_page);
   request_page(current_page);
 }
-static void up_click_handler_long(ClickRecognizerRef recognizer, void *context) {
-  current_page-=50;
-  if (current_page < 0)
-    current_page=0;
-  persist_write_int(PERSIST_KEY_PAGE, current_page);
-  request_page(current_page);
-}
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   current_page++;
   persist_write_int(PERSIST_KEY_PAGE, current_page);
   request_page(current_page);
 }
-static void down_click_handler_long(ClickRecognizerRef recognizer, void *context) {
-  current_page+=50;
-  persist_write_int(PERSIST_KEY_PAGE, current_page);
-  request_page(current_page);
-}
 
 static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
-  window_long_click_subscribe(BUTTON_ID_UP, up_click_handler_long);
+  window_single_repeating_click_subscribe(BUTTON_ID_UP, 100, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-  window_long_click_subscribe(BUTTON_ID_DOWN, down_click_handler_long);
+  window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 100, down_click_handler);
 }
 
 static void window_load(Window *window) {
