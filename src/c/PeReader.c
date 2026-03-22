@@ -77,7 +77,7 @@ static void window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   text_layer = text_layer_create(bounds);
-  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
+  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
