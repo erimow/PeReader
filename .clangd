@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [
+    "-I/home/erik/.pebble-sdk/SDKs/current/sdk-core/pebble/diorite/include"
+  ]

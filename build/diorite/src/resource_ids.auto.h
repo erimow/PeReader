@@ -7,4 +7,3 @@
 
 #define  DEFAULT_MENU_ICON  0
 
-#define  RESOURCE_ID_BOOK_TXT  1

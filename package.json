@@ -4,10 +4,7 @@
   "version": "1.0.0",
   "keywords": ["pebble-app"],
   "private": true,
-  "messageKeys": {
-    "KEY_TEXT": 0,
-    "KEY_COMMAND": 1
-  },
+  
   "dependencies": {},
   "pebble": {
     "displayName": "PeReader",
@@ -20,16 +17,19 @@
       "chalk",
       "diorite"
     ],
+    "capabilities": [
+      "configurable"
+    ],
+    "messageKeys": {
+    "PAGE_REQUEST": 0,
+    "PAGE_TEXT": 1,
+    "TOTAL_PAGES": 2
+  },
     "watchapp": {
       "watchface": false
     },
     "resources": {
       "media": [
-        {
-          "type": "raw",
-          "name": "BOOK_TXT",
-          "file": "data/book.txt"
-        }
       ]
     }
   }

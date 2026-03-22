@@ -7,26 +7,30 @@
     ], 
     "displayName": "PeReader", 
     "name": "PeReader", 
-    "messageKeys": {}, 
+    "messageKeys": {
+        "PAGE_TEXT": 1, 
+        "PAGE_REQUEST": 0, 
+        "TOTAL_PAGES": 2
+    }, 
     "companyName": "erimow", 
     "enableMultiJS": true, 
     "versionLabel": "1.0", 
-    "capabilities": [], 
+    "capabilities": [
+        "configurable"
+    ], 
     "sdkVersion": "3", 
-    "appKeys": {}, 
+    "appKeys": {
+        "PAGE_TEXT": 1, 
+        "PAGE_REQUEST": 0, 
+        "TOTAL_PAGES": 2
+    }, 
     "longName": "PeReader", 
     "shortName": "PeReader", 
     "watchapp": {
         "watchface": false
     }, 
     "resources": {
-        "media": [
-            {
-                "type": "raw", 
-                "name": "BOOK_TXT", 
-                "file": "data/book.txt"
-            }
-        ]
+        "media": []
     }, 
     "uuid": "851d53a9-a50f-429a-9ed5-56eb3ffad258"
 }
