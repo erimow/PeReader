@@ -79,7 +79,7 @@
 /***/ (function(module, exports) {
 
 	// ===== CONFIG =====
-	const MAX_PAGE_LENGTH = 180; // SAFE for Pebble
+	const MAX_PAGE_LENGTH = 90; // SAFE for Pebble
 	
 	// ===== STATE =====
 	let pages = [];
@@ -95,7 +95,7 @@
 	}
 	
 	// ===== PAGE SPLITTING =====
-	function splitIntoPages(text, maxLength = 180) {
+	function splitIntoPages(text, maxLength = MAX_PAGE_LENGTH) {
 	  const paragraphs = text.split(/\n+/);
 	  const pages = [];
 	
@@ -174,7 +174,7 @@
 	      <script>
 	        let processedPages = [];
 	
-	        function splitIntoPages(text, maxLength = 120) {
+	        function splitIntoPages(text, maxLength = 90) {
 	          const paragraphs = text.split(/\\n+/);
 	          const pages = [];
 	
