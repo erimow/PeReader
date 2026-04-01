@@ -106,7 +106,7 @@ static void action_bar_up_click_handler(ClickRecognizerRef recognizer, void *con
   light_enable(brightness);
 }
 static void action_bar_select_click_handler(ClickRecognizerRef recognizer, void *context){
-  //EXIT ACTION LAYER
+  //EXIT ACTION LAYER - also called when pressing the back button
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
   actionbar_enabled=false;
@@ -117,6 +117,7 @@ static void action_bar_click_config_provider(void *context){
   window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler)action_bar_down_click_handler);
   window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler)action_bar_up_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler)action_bar_select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)action_bar_select_click_handler);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context){
@@ -138,6 +139,10 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   request_page(current_page);
 }
 
+static void back_click_handler(ClickRecognizerRef recognizer, void *contest){
+  window_stack_pop(true);
+}
+
 
 static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
@@ -145,6 +150,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
   window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 100, down_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
 }
 
 static void window_load(Window *window) {
@@ -175,7 +181,7 @@ static void window_load(Window *window) {
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, done_image, true);
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, skip_image, true);
 
-  number_window = number_window_create("What percentage to skip to?", (NumberWindowCallbacks){.selected = number_window_select_callback}, NULL);
+  number_window = number_window_create("Skip Percentage", (NumberWindowCallbacks){.selected = number_window_select_callback}, NULL);
   number_window_set_min(number_window, 0);
   number_window_set_max(number_window, 100);
 }
