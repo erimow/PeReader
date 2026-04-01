@@ -95,6 +95,7 @@ static void action_bar_down_click_handler(ClickRecognizerRef recognizer, void *c
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
   actionbar_enabled=false;
+  text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
   // window_set_click_config_provider(window, window_get_click_config_provider(number_window_get_window(number_window)));// redundant
 }
@@ -110,6 +111,7 @@ static void action_bar_select_click_handler(ClickRecognizerRef recognizer, void 
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
   actionbar_enabled=false;
+  text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
 }
 
@@ -124,6 +126,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context){
   action_bar_layer_add_to_window(action_bar_layer, window);
   action_bar_layer_set_click_config_provider(action_bar_layer, action_bar_click_config_provider);
   actionbar_enabled = true;
+  text_layer_set_background_color(time_text_layer, GColorBlack);
   update_time();
 }
 
@@ -168,12 +171,12 @@ static void window_load(Window *window) {
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
 
-  time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 70));
+  time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 55));
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
   text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeWordWrap);
   text_layer_set_background_color(time_text_layer, GColorClear);
-  // text_layer_set_text_color(time_text_layer, GColorBlack);
+  text_layer_set_text_color(time_text_layer, GColorWhite);
 
   layer_add_child(window_layer, text_layer_get_layer(time_text_layer));
 
