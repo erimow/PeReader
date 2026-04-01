@@ -82,7 +82,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 }
 
 static void number_window_select_callback(struct NumberWindow *number_window, void *context){
-  total_pages = 8000;
   current_page = (total_pages*((float)number_window_get_value(number_window)/100));
   persist_write_int(PERSIST_KEY_PAGE, current_page);
   window_stack_pop(true);
