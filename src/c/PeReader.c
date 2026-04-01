@@ -172,6 +172,7 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
   text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeWordWrap);
+  text_layer_set_background_color(time_text_layer, GColorClear);
   // text_layer_set_text_color(time_text_layer, GColorBlack);
 
   layer_add_child(window_layer, text_layer_get_layer(time_text_layer));
