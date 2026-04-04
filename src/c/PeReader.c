@@ -4,6 +4,7 @@
 
 static Window *window;
 static TextLayer *text_layer;
+static TextLayer *page_text_layer;
 static TextLayer *time_text_layer;
 static ActionBarLayer *action_bar_layer;
 static NumberWindow *number_window;
@@ -52,10 +53,14 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 static void update_display(const char *text) {
   static char buffer[512];
 
-  snprintf(buffer, sizeof(buffer), "Page %u/%u\n%s",
-           current_page + 1, total_pages, text);
+  snprintf(buffer, sizeof(buffer), "%s", text);
 
   text_layer_set_text(text_layer, buffer);
+
+  static char pagebuffer[32];
+  snprintf(pagebuffer, sizeof(pagebuffer), "Page %u/%u",
+           current_page + 1, total_pages);
+  text_layer_set_text(page_text_layer, pagebuffer);
 }
 
 static void request_page(int page) {
@@ -170,11 +175,20 @@ static void window_load(Window *window) {
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
+  text_layer_set_text(text_layer, "NO TXT LOADED\n\nUp: page back\nSelect: open settings\nDown: page forward"); // set default text when book is not loaded
+
+  page_text_layer = text_layer_create(GRect(0,bounds.size.h-19, bounds.size.w, 19));
+  text_layer_set_font(page_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  // text_layer_set_overflow_mode(page_text_layer, GTextOverflowModeWordWrap);
+  text_layer_set_text_alignment(page_text_layer, GTextAlignmentRight);
+  text_layer_set_background_color(page_text_layer, GColorClear);
+
+  layer_add_child(window_layer, text_layer_get_layer(page_text_layer));
 
   time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 55));
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
-  text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
-  text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeWordWrap);
+  text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS));
+  text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeFill);
   text_layer_set_background_color(time_text_layer, GColorClear);
   text_layer_set_text_color(time_text_layer, GColorWhite);
 
@@ -210,7 +224,7 @@ static void init() {
   if (persist_exists(PERSIST_KEY_BRIGHTNESS)){
     brightness = persist_read_bool(PERSIST_KEY_BRIGHTNESS);
   }
-  light_enable(brightness);
+  if (brightness) light_enable(brightness);
 
   window_set_click_config_provider(window, click_config_provider);
   window_set_window_handlers(window, (WindowHandlers) {
