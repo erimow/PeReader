@@ -78,6 +78,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *total_tuple = dict_find(iter, MESSAGE_KEY_TOTAL_PAGES);
 
   if (total_tuple) {
+    if (total_pages>0&&total_tuple->value->int32!=(signed int)total_pages){
+      total_pages = total_tuple->value->int32;
+      current_page = 0;
+      persist_write_int(PERSIST_KEY_PAGE, current_page);
+      request_page(current_page);
+      return;
+    }
     total_pages = total_tuple->value->int32;
   }
 
