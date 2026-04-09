@@ -58,8 +58,8 @@ static void update_display(const char *text) {
   text_layer_set_text(text_layer, buffer);
 
   static char pagebuffer[32];
-  snprintf(pagebuffer, sizeof(pagebuffer), "Page %u/%u",
-           current_page + 1, total_pages);
+  snprintf(pagebuffer, sizeof(pagebuffer), "Page %u/%u %u%%",
+           current_page + 1, total_pages, (unsigned int)(((float)current_page/(float)total_pages)*100));
   text_layer_set_text(page_text_layer, pagebuffer);
 }
 
@@ -96,6 +96,7 @@ static void number_window_select_callback(struct NumberWindow *number_window, vo
 
 static void action_bar_down_click_handler(ClickRecognizerRef recognizer, void *context){
   //SKIP SECTIONS OPTION
+  number_window_set_value(number_window, (int)(((float)current_page/(float)total_pages)*100));
   window_stack_push(number_window_get_window(number_window), true);
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
@@ -175,7 +176,7 @@ static void window_load(Window *window) {
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
-  text_layer_set_text(text_layer, "NO TXT LOADED\n\nUp: page back\nSelect: open settings\nDown: page forward"); // set default text when book is not loaded
+  text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\n"); // set default text when book is not loaded
 
   page_text_layer = text_layer_create(GRect(0,bounds.size.h-19, bounds.size.w, 19));
   text_layer_set_font(page_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
@@ -185,9 +186,9 @@ static void window_load(Window *window) {
 
   layer_add_child(window_layer, text_layer_get_layer(page_text_layer));
 
-  time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 55));
+  time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 40));
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
-  text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS));
+  text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeFill);
   text_layer_set_background_color(time_text_layer, GColorClear);
   text_layer_set_text_color(time_text_layer, GColorWhite);
