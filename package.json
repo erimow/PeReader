@@ -36,6 +36,11 @@
       },
       {
         "type": "bitmap",
+        "name": "IMAGE_BRIGHTNESS_AUTO",
+        "file": "brightness_auto.png"
+      },
+      {
+        "type": "bitmap",
         "name": "IMAGE_BRIGHTNESS_ON",
         "file": "brightness_on.png"
       },
