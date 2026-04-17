@@ -21,6 +21,9 @@ static unsigned int total_pages = 0;
 static bool brightness = false;
 static bool actionbar_enabled = false;
 
+// static bool inbox_received = false;
+// static time_t tick_time_on_message_send;
+
 #define PERSIST_KEY_PAGE 1
 #define PERSIST_KEY_BRIGHTNESS 50
 
@@ -50,6 +53,12 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
+// static void seconds_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+//   // if (tick_time_on_message_send <= time(NULL)-5){
+//   //   request_page(current_page);
+//   // }
+// }
+
 static void update_display(const char *text) {
   static char buffer[512];
 
@@ -64,6 +73,7 @@ static void update_display(const char *text) {
 }
 
 static void request_page(int page) {
+  // inbox_received = false;
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
@@ -74,6 +84,7 @@ static void request_page(int page) {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+  // inbox_received = true;
   Tuple *text_tuple = dict_find(iter, MESSAGE_KEY_PAGE_TEXT);
   Tuple *total_tuple = dict_find(iter, MESSAGE_KEY_TOTAL_PAGES);
 
@@ -108,6 +119,7 @@ static void action_bar_down_click_handler(ClickRecognizerRef recognizer, void *c
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
   actionbar_enabled=false;
+  tick_timer_service_unsubscribe();
   text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
   // window_set_click_config_provider(window, window_get_click_config_provider(number_window_get_window(number_window)));// redundant
@@ -124,6 +136,7 @@ static void action_bar_select_click_handler(ClickRecognizerRef recognizer, void 
   action_bar_layer_remove_from_window(action_bar_layer);
   window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
   actionbar_enabled=false;
+  tick_timer_service_unsubscribe();
   text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
 }
@@ -139,6 +152,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context){
   action_bar_layer_add_to_window(action_bar_layer, window);
   action_bar_layer_set_click_config_provider(action_bar_layer, action_bar_click_config_provider);
   actionbar_enabled = true;
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   text_layer_set_background_color(time_text_layer, GColorBlack);
   update_time();
 }
@@ -173,7 +187,7 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
-  brightness_off_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_OFF);
+  brightness_off_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_AUTO);
   brightness_on_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_ON);
   done_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EXIT);
   skip_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PERCENT);
@@ -221,6 +235,7 @@ static void window_unload(Window *window) {
   text_layer_destroy(time_text_layer);
   action_bar_layer_destroy(action_bar_layer);
   number_window_destroy(number_window);
+  tick_timer_service_unsubscribe();
 }
 
 static void init() {
@@ -242,12 +257,13 @@ static void init() {
 
   window_stack_push(window, true);
 
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(4096, 4096);
 
   request_page(current_page);
+  // tick_timer_service_subscribe(SECOND_UNIT, seconds_tick_handler);
+  // tick_time_on_message_send = time(NULL);
 }
 
 static void deinit() {

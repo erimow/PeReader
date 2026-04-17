@@ -1,0 +1,63 @@
+{
+    "targetPlatforms": [
+        "aplite", 
+        "basalt", 
+        "chalk", 
+        "diorite"
+    ], 
+    "displayName": "PeReader", 
+    "name": "PeReader", 
+    "messageKeys": {
+        "PAGE_TEXT": 1, 
+        "PAGE_REQUEST": 0, 
+        "TOTAL_PAGES": 2
+    }, 
+    "companyName": "erimow", 
+    "enableMultiJS": true, 
+    "versionLabel": "1.0", 
+    "capabilities": [
+        "configurable"
+    ], 
+    "sdkVersion": "3", 
+    "appKeys": {
+        "PAGE_TEXT": 1, 
+        "PAGE_REQUEST": 0, 
+        "TOTAL_PAGES": 2
+    }, 
+    "longName": "PeReader", 
+    "shortName": "PeReader", 
+    "watchapp": {
+        "watchface": false
+    }, 
+    "resources": {
+        "media": [
+            {
+                "type": "bitmap", 
+                "name": "IMAGE_BRIGHTNESS_AUTO", 
+                "file": "brightness_auto.png"
+            }, 
+            {
+                "type": "bitmap", 
+                "name": "IMAGE_BRIGHTNESS_ON", 
+                "file": "brightness_on.png"
+            }, 
+            {
+                "type": "bitmap", 
+                "name": "IMAGE_EXIT", 
+                "file": "close.png"
+            }, 
+            {
+                "type": "bitmap", 
+                "name": "IMAGE_PERCENT", 
+                "file": "percent.png"
+            }, 
+            {
+                "menuIcon": true, 
+                "type": "bitmap", 
+                "name": "IMAGE_ICON", 
+                "file": "icon.png"
+            }
+        ]
+    }, 
+    "uuid": "851d53a9-a50f-429a-9ed5-56eb3ffad258"
+}

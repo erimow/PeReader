@@ -31,11 +31,6 @@
     "resources": {
       "media": [{
         "type": "bitmap",
-        "name": "IMAGE_BRIGHTNESS_OFF",
-        "file": "brightness_off.png"
-      },
-      {
-        "type": "bitmap",
         "name": "IMAGE_BRIGHTNESS_AUTO",
         "file": "brightness_auto.png"
       },
