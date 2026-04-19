@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const MAX_PAGE_LENGTH = 90; // SAFE for Pebble
+let MAX_PAGE_LENGTH = 90; // SAFE for Pebble
 
 // ===== STATE =====
 let pages = [];
@@ -9,20 +9,24 @@ let currentPage = 0;
 function loadBook() {
   try {
     pages = JSON.parse(localStorage.getItem("book_pages") || "[]");
-  } catch (e) {
+    } catch (e) {
     pages = [];
   }
+    try {MAX_PAGE_LENGTH = JSON.parse(localStorage.getItem("max_length"));}
+    catch (e){
+      MAX_PAGE_LENGTH=90;
+    }
 }
 
 // ===== PAGE SPLITTING =====
 function splitIntoPages(text, maxLength = MAX_PAGE_LENGTH) {
-  const paragraphs = text.split(/\n+/);
+  const paragraphs = text.split(/\\n+/);
   const pages = [];
 
   paragraphs.forEach(p => {
     if (!p.trim()) return; // skip empty paragraphs
 
-    let words = p.split(/\s+/);
+    let words = p.split(/\\s+/);
     let current = "";
 
     words.forEach(word => {
@@ -85,16 +89,28 @@ Pebble.addEventListener("showConfiguration", function() {
   const html = `
     <html>
     <body style="font-family: sans-serif; padding: 20px;">
-      <h2>PeReader Upload</h2>
+      <h2 style="color: white;">PeReader Upload</h2>
 
+      <label for="fileupload" style="color: white;">Upload TXT file below</label>
+      <br>
       <input type="file" id="fileInput" accept=".txt" />
       <br><br>
+      <label for="maxlength" style="color: white;">Set the maximum amount of characters per page.\n (90 seems to work well for smaller screens ie. time/steel)\n</label>
+      <br>
+      <input type="number" id="maxlength" name="Max Length" min="10" max="500" value="90"/>
+      <br><br>
+      <label for="uploadbutton" style="color: white;">Then Upload\n</label>
+      <br>
       <button id="uploadBtn">Upload</button>
+      <br><br>
+      <label id="errorlabel" for="errorlabel" style="color: red;"></label>
 
       <script>
         let processedPages = [];
+        let max_length = 90;
 
-        function splitIntoPages(text, maxLength = 90) {
+        function splitIntoPages(text, maxLength = document.getElementById("maxlength").value) {
+          max_length = maxLength;
           const paragraphs = text.split(/\\n+/);
           const pages = [];
 
@@ -122,6 +138,12 @@ Pebble.addEventListener("showConfiguration", function() {
 
           reader.onload = function(e) {
             const text = e.target.result;
+
+            // text = text
+            //   .replace(/\\r\\n/g, "\\n")
+            //   .replace(/\\u2028|\\u2029/g, "\\n")
+            //   .replace(/\\u0000/g, "");
+            
             processedPages = splitIntoPages(text);
 
             alert("Ready! Pages: " + processedPages.length);
@@ -133,11 +155,17 @@ Pebble.addEventListener("showConfiguration", function() {
         document.getElementById('uploadBtn').addEventListener('click', function() {
           if (!processedPages.length) {
             alert("Select a file first!");
+            document.getElementById('errorlabel').innerHTML = "Select a file first!";
             return;
           }
+           
+          //const payload = JSON.stringify({ pages: processedPages });
+          //document.getElementById('errorlabel').innerHTML = "JSON Success, length = " + payload.length + "encode length = " + encodeURIComponent(payload).length;
+
 
           document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify({
-            pages: processedPages
+            pages: processedPages,
+            maxlength: max_length
           }));
         });
       </script>
@@ -154,6 +182,10 @@ Pebble.addEventListener("webviewclosed", function(e) {
 
   let data = JSON.parse(decodeURIComponent(e.response));
 
+  if (data.maxlength){
+    localStorage.setItem("max_length", data.maxlength);
+    MAX_PAGE_LENGTH = data.maxlength;
+  }
   if (data.pages) {
     localStorage.setItem("book_pages", JSON.stringify(data.pages));
     pages = data.pages;

@@ -101,6 +101,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   if (text_tuple) {
     update_display(text_tuple->value->cstring);
+  }else{
+    // text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE APP'S SETTINGS"); // set default text when no book has been uploaded
   }
 }
 
@@ -197,7 +199,11 @@ static void window_load(Window *window) {
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
-  text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\n"); // set default text when book is not loaded
+  if (persist_exists(PERSIST_KEY_PAGE)){
+    text_layer_set_text(text_layer, "\n\nLOADING...\n\n"); // set default text when book is loading
+  }else{
+    text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE APP'S SETTINGS"); // set default text when no book has been uploaded
+  }
 
   page_text_layer = text_layer_create(GRect(0,bounds.size.h-19, bounds.size.w, 19));
   text_layer_set_font(page_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
