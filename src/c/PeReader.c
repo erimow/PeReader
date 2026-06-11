@@ -1,6 +1,7 @@
+#include "settings.h"
 #include <pebble.h>
 #include <stdbool.h>
-#include "message_keys.auto.h"
+#include <stdint.h>
 
 static Window *window;
 static TextLayer *text_layer;
@@ -8,8 +9,9 @@ static TextLayer *page_text_layer;
 static TextLayer *time_text_layer;
 static ActionBarLayer *action_bar_layer;
 static NumberWindow *number_window;
+// static MenuLayer *menu_layer;
 
-//BMPS
+// BMPS
 static GBitmap *done_image;
 static GBitmap *brightness_on_image;
 static GBitmap *brightness_off_image;
@@ -17,43 +19,42 @@ static GBitmap *skip_image;
 
 static unsigned int current_page = 0;
 static unsigned int total_pages = 0;
+// static uint8_t current_font;
 
-static bool brightness = false;
+// static bool brightness = false;
 static bool actionbar_enabled = false;
 
 // static bool inbox_received = false;
 // static time_t tick_time_on_message_send;
 
 #define PERSIST_KEY_PAGE 1
-#define PERSIST_KEY_BRIGHTNESS 50
 
 static void click_config_provider(void *context);
 
 static void update_time() {
   static char buffer[] = "00:00";
-  if (actionbar_enabled){
+  if (actionbar_enabled) {
     time_t temp = time(NULL);
     struct tm *tick_time = localtime(&temp);
 
-
-    if(clock_is_24h_style()) {
+    if (clock_is_24h_style()) {
       strftime(buffer, sizeof(buffer), "%H:%M", tick_time);
     } else {
       strftime(buffer, sizeof(buffer), "%I:%M", tick_time);
     }
     // APP_LOG(APP_LOG_LEVEL_DEBUG, "Buffer: %s\n", buffer);
-  text_layer_set_text(time_text_layer, buffer);
-  }else{
+    text_layer_set_text(time_text_layer, buffer);
+  } else {
     text_layer_set_text(time_text_layer, "");
   }
-
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
-// static void seconds_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+// static void seconds_tick_handler(struct tm *tick_time, TimeUnits
+// units_changed) {
 //   // if (tick_time_on_message_send <= time(NULL)-5){
 //   //   request_page(current_page);
 //   // }
@@ -67,8 +68,9 @@ static void update_display(const char *text) {
   text_layer_set_text(text_layer, buffer);
 
   static char pagebuffer[32];
-  snprintf(pagebuffer, sizeof(pagebuffer), "Page %u/%u %u%%",
-           current_page + 1, total_pages, (unsigned int)(((float)current_page/(float)total_pages)*100));
+  snprintf(pagebuffer, sizeof(pagebuffer), "Page %u/%u %u%%", current_page + 1,
+           total_pages,
+           (unsigned int)(((float)current_page / (float)total_pages) * 100));
   text_layer_set_text(page_text_layer, pagebuffer);
 }
 
@@ -77,7 +79,8 @@ static void request_page(int page) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
-  if (!iter) return;
+  if (!iter)
+    return;
 
   dict_write_int(iter, MESSAGE_KEY_PAGE_REQUEST, &page, sizeof(int), true);
   app_message_outbox_send();
@@ -89,7 +92,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *total_tuple = dict_find(iter, MESSAGE_KEY_TOTAL_PAGES);
 
   if (total_tuple) {
-    if (total_pages>0&&total_tuple->value->int32!=(signed int)total_pages){
+    if (total_pages > 0 &&
+        total_tuple->value->int32 != (signed int)total_pages) {
       total_pages = total_tuple->value->int32;
       current_page = 0;
       persist_write_int(PERSIST_KEY_PAGE, current_page);
@@ -101,58 +105,72 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   if (text_tuple) {
     update_display(text_tuple->value->cstring);
-  }else{
-    // text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE APP'S SETTINGS"); // set default text when no book has been uploaded
+  } else {
+    // text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE
+    // APP'S SETTINGS"); // set default text when no book has been uploaded
   }
 }
 
-static void number_window_select_callback(struct NumberWindow *number_window, void *context){
-  current_page = (total_pages*((float)number_window_get_value(number_window)/100));
+static void number_window_select_callback(struct NumberWindow *number_window,
+                                          void *context) {
+  current_page =
+      (total_pages * ((float)number_window_get_value(number_window) / 100));
   persist_write_int(PERSIST_KEY_PAGE, current_page);
   window_stack_pop(true);
-  // window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider); //redundant
+  // window_set_click_config_provider(window,
+  // (ClickConfigProvider)click_config_provider); //redundant
   request_page(current_page);
 }
 
-static void action_bar_down_click_handler(ClickRecognizerRef recognizer, void *context){
-  //SKIP SECTIONS OPTION
-  number_window_set_value(number_window, (int)(((float)current_page/(float)total_pages)*100));
+static void action_bar_down_click_handler(ClickRecognizerRef recognizer,
+                                          void *context) {
+  // SKIP SECTIONS OPTION
+  number_window_set_value(
+      number_window, (int)(((float)current_page / (float)total_pages) * 100));
   window_stack_push(number_window_get_window(number_window), true);
   action_bar_layer_remove_from_window(action_bar_layer);
-  window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
-  actionbar_enabled=false;
+  window_set_click_config_provider(window,
+                                   (ClickConfigProvider)click_config_provider);
+  actionbar_enabled = false;
   tick_timer_service_unsubscribe();
   text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
-  // window_set_click_config_provider(window, window_get_click_config_provider(number_window_get_window(number_window)));// redundant
+  // window_set_click_config_provider(window,
+  // window_get_click_config_provider(number_window_get_window(number_window)));//
+  // redundant
 }
-static void action_bar_up_click_handler(ClickRecognizerRef recognizer, void *context){
-  //BACKLIGHT ON
-  brightness = !brightness;
-  persist_write_bool(PERSIST_KEY_BRIGHTNESS, brightness);
-  (brightness) ? action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, brightness_on_image, true) : action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, brightness_off_image, true);
-  light_enable(brightness);
+static void action_bar_up_click_handler(ClickRecognizerRef recognizer,
+                                        void *context) {
+
+  settings_page_open(window);
 }
-static void action_bar_select_click_handler(ClickRecognizerRef recognizer, void *context){
-  //EXIT ACTION LAYER - also called when pressing the back button
+static void action_bar_select_click_handler(ClickRecognizerRef recognizer,
+                                            void *context) {
+  // EXIT ACTION LAYER - also called when pressing the back button
   action_bar_layer_remove_from_window(action_bar_layer);
-  window_set_click_config_provider(window, (ClickConfigProvider)click_config_provider);
-  actionbar_enabled=false;
+  window_set_click_config_provider(window,
+                                   (ClickConfigProvider)click_config_provider);
+  actionbar_enabled = false;
   tick_timer_service_unsubscribe();
   text_layer_set_background_color(time_text_layer, GColorClear);
   update_time();
 }
 
-static void action_bar_click_config_provider(void *context){
-  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler)action_bar_down_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler)action_bar_up_click_handler);
-  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler)action_bar_select_click_handler);
-  window_single_click_subscribe(BUTTON_ID_BACK, (ClickHandler)action_bar_select_click_handler);
+static void action_bar_click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_DOWN,
+                                (ClickHandler)action_bar_down_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP,
+                                (ClickHandler)action_bar_up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT,
+                                (ClickHandler)action_bar_select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK,
+                                (ClickHandler)action_bar_select_click_handler);
 }
 
-static void select_click_handler(ClickRecognizerRef recognizer, void *context){
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   action_bar_layer_add_to_window(action_bar_layer, window);
-  action_bar_layer_set_click_config_provider(action_bar_layer, action_bar_click_config_provider);
+  action_bar_layer_set_click_config_provider(action_bar_layer,
+                                             action_bar_click_config_provider);
   actionbar_enabled = true;
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   text_layer_set_background_color(time_text_layer, GColorBlack);
@@ -160,7 +178,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context){
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (current_page > 0) current_page--;
+  if (current_page > 0)
+    current_page--;
   persist_write_int(PERSIST_KEY_PAGE, current_page);
   request_page(current_page);
 }
@@ -171,16 +190,16 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   request_page(current_page);
 }
 
-static void back_click_handler(ClickRecognizerRef recognizer, void *contest){
+static void back_click_handler(ClickRecognizerRef recognizer, void *contest) {
   window_stack_pop(true);
 }
-
 
 static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_repeating_click_subscribe(BUTTON_ID_UP, 100, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-  window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 100, down_click_handler);
+  window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 100,
+                                          down_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
 }
@@ -189,33 +208,44 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
-  brightness_off_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_AUTO);
-  brightness_on_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_ON);
+  brightness_off_image =
+      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_AUTO);
+  brightness_on_image =
+      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_ON);
   done_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EXIT);
   skip_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PERCENT);
 
   text_layer = text_layer_create(bounds);
-  text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  text_layer_set_font(text_layer,
+                      fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
-  if (persist_exists(PERSIST_KEY_PAGE)){
-    text_layer_set_text(text_layer, "\n\nLOADING...\n\n"); // set default text when book is loading
-  }else{
-    text_layer_set_text(text_layer, "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE APP'S SETTINGS"); // set default text when no book has been uploaded
+  if (persist_exists(PERSIST_KEY_PAGE)) {
+    text_layer_set_text(
+        text_layer,
+        "\n\nLOADING...\n\n"); // set default text when book is loading
+  } else {
+    text_layer_set_text(text_layer,
+                        "\n\nNO TXT LOADED\n\nUPLOAD FILE IN THE APP'S "
+                        "SETTINGS"); // set default text when no book has been
+                                     // uploaded
   }
 
-  page_text_layer = text_layer_create(GRect(0,bounds.size.h-19, bounds.size.w, 19));
-  text_layer_set_font(page_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  page_text_layer =
+      text_layer_create(GRect(0, bounds.size.h - 19, bounds.size.w, 19));
+  text_layer_set_font(page_text_layer,
+                      fonts_get_system_font(FONT_KEY_GOTHIC_18));
   // text_layer_set_overflow_mode(page_text_layer, GTextOverflowModeWordWrap);
   text_layer_set_text_alignment(page_text_layer, GTextAlignmentRight);
   text_layer_set_background_color(page_text_layer, GColorClear);
 
   layer_add_child(window_layer, text_layer_get_layer(page_text_layer));
 
-  time_text_layer = text_layer_create(GRect(0,0, bounds.size.w-30, 40));
+  time_text_layer = text_layer_create(GRect(0, 0, bounds.size.w - 30, 40));
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
-  text_layer_set_font(time_text_layer, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+  text_layer_set_font(time_text_layer,
+                      fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_overflow_mode(time_text_layer, GTextOverflowModeFill);
   text_layer_set_background_color(time_text_layer, GColorClear);
   text_layer_set_text_color(time_text_layer, GColorWhite);
@@ -223,13 +253,23 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(time_text_layer));
 
   action_bar_layer = action_bar_layer_create();
-  (brightness) ? action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, brightness_on_image, true) : action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, brightness_off_image, true);
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT, done_image, true);
-  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN, skip_image, true);
+  (is_brightness_enabled())
+      ? action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP,
+                                           brightness_on_image, true)
+      : action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP,
+                                           brightness_off_image, true);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT,
+                                     done_image, true);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN,
+                                     skip_image, true);
 
-  number_window = number_window_create("Skip Percentage", (NumberWindowCallbacks){.selected = number_window_select_callback}, NULL);
+  number_window = number_window_create(
+      "Skip Percentage",
+      (NumberWindowCallbacks){.selected = number_window_select_callback}, NULL);
   number_window_set_min(number_window, 0);
   number_window_set_max(number_window, 100);
+
+  settings_page_create(bounds);
 }
 
 static void window_unload(Window *window) {
@@ -241,6 +281,7 @@ static void window_unload(Window *window) {
   text_layer_destroy(time_text_layer);
   action_bar_layer_destroy(action_bar_layer);
   number_window_destroy(number_window);
+  settings_page_destroy();
   tick_timer_service_unsubscribe();
 }
 
@@ -250,19 +291,17 @@ static void init() {
   if (persist_exists(PERSIST_KEY_PAGE)) {
     current_page = persist_read_int(PERSIST_KEY_PAGE);
   }
-  if (persist_exists(PERSIST_KEY_BRIGHTNESS)){
-    brightness = persist_read_bool(PERSIST_KEY_BRIGHTNESS);
+  if (persist_exists(PERSIST_KEY_BRIGHTNESS)) {
+    set_brightness(persist_read_bool(PERSIST_KEY_BRIGHTNESS));
   }
-  if (brightness) light_enable(brightness);
+  if (is_brightness_enabled())
+    light_enable(true);
 
   window_set_click_config_provider(window, click_config_provider);
-  window_set_window_handlers(window, (WindowHandlers) {
-    .load = window_load,
-    .unload = window_unload
-  });
+  window_set_window_handlers(
+      window, (WindowHandlers){.load = window_load, .unload = window_unload});
 
   window_stack_push(window, true);
-
 
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(4096, 4096);

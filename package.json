@@ -15,7 +15,9 @@
       "aplite",
       "basalt",
       "chalk",
-      "diorite"
+      "diorite",
+      "emery",
+      "gabbro"
     ],
     "capabilities": [
       "configurable"

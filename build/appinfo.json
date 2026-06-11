@@ -1,0 +1,65 @@
+{
+    "displayName": "PeReader",
+    "uuid": "851d53a9-a50f-429a-9ed5-56eb3ffad258",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk",
+        "diorite",
+        "emery",
+        "gabbro"
+    ],
+    "capabilities": [
+        "configurable"
+    ],
+    "messageKeys": {
+        "PAGE_REQUEST": 0,
+        "PAGE_TEXT": 1,
+        "TOTAL_PAGES": 2
+    },
+    "watchapp": {
+        "watchface": false
+    },
+    "resources": {
+        "media": [
+            {
+                "type": "bitmap",
+                "name": "IMAGE_BRIGHTNESS_AUTO",
+                "file": "brightness_auto.png"
+            },
+            {
+                "type": "bitmap",
+                "name": "IMAGE_BRIGHTNESS_ON",
+                "file": "brightness_on.png"
+            },
+            {
+                "type": "bitmap",
+                "name": "IMAGE_EXIT",
+                "file": "close.png"
+            },
+            {
+                "type": "bitmap",
+                "name": "IMAGE_PERCENT",
+                "file": "percent.png"
+            },
+            {
+                "menuIcon": true,
+                "type": "bitmap",
+                "name": "IMAGE_ICON",
+                "file": "icon.png"
+            }
+        ]
+    },
+    "name": "PeReader",
+    "shortName": "PeReader",
+    "longName": "PeReader",
+    "versionLabel": "1.0.0",
+    "companyName": "erimow",
+    "appKeys": {
+        "PAGE_REQUEST": 0,
+        "PAGE_TEXT": 1,
+        "TOTAL_PAGES": 2
+    }
+}
