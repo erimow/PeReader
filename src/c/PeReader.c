@@ -13,9 +13,8 @@ static NumberWindow *number_window;
 
 // BMPS
 static GBitmap *done_image;
-static GBitmap *brightness_on_image;
-static GBitmap *brightness_off_image;
 static GBitmap *skip_image;
+static GBitmap *gear_image;
 
 static unsigned int current_page = 0;
 static unsigned int total_pages = 0;
@@ -142,6 +141,13 @@ static void action_bar_down_click_handler(ClickRecognizerRef recognizer,
 static void action_bar_up_click_handler(ClickRecognizerRef recognizer,
                                         void *context) {
 
+  action_bar_layer_remove_from_window(action_bar_layer);
+  // window_set_click_config_provider(window,
+  //                                  (ClickConfigProvider)click_config_provider);
+  actionbar_enabled = false;
+  tick_timer_service_unsubscribe();
+  text_layer_set_background_color(time_text_layer, GColorClear);
+  update_time();
   settings_page_open(window);
 }
 static void action_bar_select_click_handler(ClickRecognizerRef recognizer,
@@ -208,12 +214,9 @@ static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
 
-  brightness_off_image =
-      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_AUTO);
-  brightness_on_image =
-      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_ON);
   done_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_EXIT);
   skip_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PERCENT);
+  gear_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GEAR);
 
   text_layer = text_layer_create(bounds);
   update_font_layer_size(text_layer);
@@ -252,11 +255,8 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(time_text_layer));
 
   action_bar_layer = action_bar_layer_create();
-  (is_brightness_enabled())
-      ? action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP,
-                                           brightness_on_image, true)
-      : action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP,
-                                           brightness_off_image, true);
+  action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_UP, gear_image,
+                                     true);
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_SELECT,
                                      done_image, true);
   action_bar_layer_set_icon_animated(action_bar_layer, BUTTON_ID_DOWN,
@@ -268,14 +268,13 @@ static void window_load(Window *window) {
   number_window_set_min(number_window, 0);
   number_window_set_max(number_window, 100);
 
-  settings_page_create(bounds, text_layer);
+  settings_page_create(window, bounds, text_layer, click_config_provider);
 }
 
 static void window_unload(Window *window) {
   gbitmap_destroy(done_image);
-  gbitmap_destroy(brightness_on_image);
-  gbitmap_destroy(brightness_off_image);
   gbitmap_destroy(skip_image);
+  gbitmap_destroy(gear_image);
   text_layer_destroy(text_layer);
   text_layer_destroy(time_text_layer);
   text_layer_destroy(page_text_layer);

@@ -8,9 +8,16 @@ static MenuLayer *menu_layer;
 static bool brightness;
 static FontSize font_size = TWENTYFOUR;
 static TextLayer *p_to_main_text_layer;
+static Window *p_to_window = NULL;
 
 // CALLBACKS
-//
+
+// BITMAPS
+static GBitmap *brightness_on_image;
+static GBitmap *brightness_off_image;
+
+// FUNCTION POINTER
+static void (*click_cofig)(void *context);
 
 uint16_t menu_get_num_rows(MenuLayer *menulayer, uint16_t section_index,
                            void *context) {
@@ -21,8 +28,9 @@ void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer,
                             MenuIndex *cell_index, void *data) {
   switch (cell_index->row) {
   case 0:
-    menu_cell_basic_draw(ctx, cell_layer, "Backlight",
-                         (brightness) ? "on" : "off", NULL);
+    menu_cell_basic_draw(
+        ctx, cell_layer, "Backlight", (brightness) ? "on" : "off",
+        (brightness) ? brightness_on_image : brightness_off_image);
     break;
   case 1:
     menu_cell_basic_draw(ctx, cell_layer, "Font Size",
@@ -64,19 +72,29 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
     layer_mark_dirty(menu_layer_get_layer(menu_layer));
     break;
   case 2:
-    window_stack_pop(true);
+    layer_remove_from_parent(menu_layer_get_layer(menu_layer));
+    window_set_click_config_provider(p_to_window,
+                                     (ClickConfigProvider)click_cofig);
     break;
   }
 }
 
-void settings_page_create(GRect frame, TextLayer *textlayer) {
+void settings_page_create(Window *window, GRect frame, TextLayer *textlayer,
+                          void (*window_click_config)(void *context)) {
+  p_to_window = window;
   p_to_main_text_layer = textlayer;
+  click_cofig = window_click_config;
   menu_layer = menu_layer_create(frame);
   menu_layer_set_callbacks(
       menu_layer, NULL,
       (MenuLayerCallbacks){.get_num_rows = menu_get_num_rows,
                            .draw_row = menu_draw_row_callback,
                            .select_click = menu_select_callback});
+
+  brightness_off_image =
+      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_AUTO);
+  brightness_on_image =
+      gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BRIGHTNESS_ON);
 }
 void settings_page_open(Window *window) {
   menu_layer_set_click_config_onto_window(menu_layer, window);
@@ -87,6 +105,8 @@ void settings_page_open(Window *window) {
 void settings_page_destroy() {
   if (menu_layer)
     menu_layer_destroy(menu_layer);
+  gbitmap_destroy(brightness_on_image);
+  gbitmap_destroy(brightness_off_image);
 }
 
 void set_brightness(bool bright) { brightness = bright; }

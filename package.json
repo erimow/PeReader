@@ -52,6 +52,11 @@
         "file": "percent.png"
       },
       {
+        "type": "bitmap",
+        "name": "IMAGE_GEAR",
+        "file": "gear.png"
+      },
+      {
         "menuIcon": true,
         "type": "bitmap",
         "name": "IMAGE_ICON",

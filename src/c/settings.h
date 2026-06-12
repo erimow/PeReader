@@ -7,7 +7,8 @@
 
 typedef enum FontSize { TWENTYFOUR, TWENTYEIGHT } FontSize;
 
-void settings_page_create(GRect frame, TextLayer *textlayer);
+void settings_page_create(Window *window, GRect frame, TextLayer *textlayer,
+                          void (*window_click_config)(void *context));
 void settings_page_open(Window *window);
 void settings_page_destroy();
 
