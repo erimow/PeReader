@@ -216,8 +216,7 @@ static void window_load(Window *window) {
   skip_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PERCENT);
 
   text_layer = text_layer_create(bounds);
-  text_layer_set_font(text_layer,
-                      fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  update_font_layer_size(text_layer);
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
@@ -269,7 +268,7 @@ static void window_load(Window *window) {
   number_window_set_min(number_window, 0);
   number_window_set_max(number_window, 100);
 
-  settings_page_create(bounds);
+  settings_page_create(bounds, text_layer);
 }
 
 static void window_unload(Window *window) {
@@ -279,6 +278,7 @@ static void window_unload(Window *window) {
   gbitmap_destroy(skip_image);
   text_layer_destroy(text_layer);
   text_layer_destroy(time_text_layer);
+  text_layer_destroy(page_text_layer);
   action_bar_layer_destroy(action_bar_layer);
   number_window_destroy(number_window);
   settings_page_destroy();
@@ -293,6 +293,9 @@ static void init() {
   }
   if (persist_exists(PERSIST_KEY_BRIGHTNESS)) {
     set_brightness(persist_read_bool(PERSIST_KEY_BRIGHTNESS));
+  }
+  if (persist_exists(PERSIST_KEY_FONT)) {
+    set_font_size(persist_read_int(PERSIST_KEY_FONT));
   }
   if (is_brightness_enabled())
     light_enable(true);

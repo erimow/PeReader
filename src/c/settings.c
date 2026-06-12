@@ -6,7 +6,8 @@ static MenuLayer *menu_layer;
 
 // other
 static bool brightness;
-static uint8_t font_size;
+static FontSize font_size = TWENTYFOUR;
+static TextLayer *p_to_main_text_layer;
 
 // CALLBACKS
 //
@@ -24,7 +25,8 @@ void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer,
                          (brightness) ? "on" : "off", NULL);
     break;
   case 1:
-    menu_cell_basic_draw(ctx, cell_layer, "Font Size", "test", NULL);
+    menu_cell_basic_draw(ctx, cell_layer, "Font Size",
+                         (font_size == TWENTYFOUR) ? "24" : "28", NULL);
     break;
   case 2:
     menu_cell_basic_draw(ctx, cell_layer, "Exit Settings", "",
@@ -49,6 +51,17 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
     layer_mark_dirty(menu_layer_get_layer(menu_layer));
     break;
   case 1: // Font Size
+    switch (font_size) {
+    case TWENTYFOUR:
+      font_size = TWENTYEIGHT;
+      break;
+    case TWENTYEIGHT:
+      font_size = TWENTYFOUR;
+      break;
+    }
+    update_font_layer_size(p_to_main_text_layer);
+    persist_write_int(PERSIST_KEY_FONT, font_size);
+    layer_mark_dirty(menu_layer_get_layer(menu_layer));
     break;
   case 2:
     window_stack_pop(true);
@@ -56,7 +69,8 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
   }
 }
 
-void settings_page_create(GRect frame) {
+void settings_page_create(GRect frame, TextLayer *textlayer) {
+  p_to_main_text_layer = textlayer;
   menu_layer = menu_layer_create(frame);
   menu_layer_set_callbacks(
       menu_layer, NULL,
@@ -78,5 +92,18 @@ void settings_page_destroy() {
 void set_brightness(bool bright) { brightness = bright; }
 
 bool is_brightness_enabled() { return brightness; }
+
+void set_font_size(uint8_t fontsize) { font_size = fontsize; }
+
+void update_font_layer_size(TextLayer *text_layer) {
+  if (get_font_size() == TWENTYFOUR) {
+    text_layer_set_font(text_layer,
+                        fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  } else if (get_font_size() == TWENTYEIGHT) {
+
+    text_layer_set_font(text_layer,
+                        fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  }
+}
 
 uint8_t get_font_size() { return font_size; }
