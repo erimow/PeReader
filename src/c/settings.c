@@ -37,6 +37,9 @@ void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer,
     case FOURTEEN:
       menu_cell_basic_draw(ctx, cell_layer, "Font Size", "14", NULL);
       break;
+    case EIGHTEEN:
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "18", NULL);
+      break;
     case TWENTYFOUR:
       menu_cell_basic_draw(ctx, cell_layer, "Font Size", "24", NULL);
       break;
@@ -70,6 +73,9 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
   case 1: // Font Size
     switch (font_size) {
     case FOURTEEN:
+      font_size = EIGHTEEN;
+      break;
+    case EIGHTEEN:
       font_size = TWENTYFOUR;
       break;
     case TWENTYFOUR:
@@ -146,6 +152,9 @@ void update_font_layer_size(TextLayer *text_layer) {
   } else if (get_font_size() == FOURTEEN) {
     text_layer_set_font(text_layer,
                         fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
+  } else if (get_font_size() == EIGHTEEN) {
+    text_layer_set_font(text_layer,
+                        fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   }
 }
 
