@@ -33,8 +33,17 @@ void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer,
         (brightness) ? brightness_on_image : brightness_off_image);
     break;
   case 1:
-    menu_cell_basic_draw(ctx, cell_layer, "Font Size",
-                         (font_size == TWENTYFOUR) ? "24" : "28", NULL);
+    switch (font_size) {
+    case FOURTEEN:
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "14", NULL);
+      break;
+    case TWENTYFOUR:
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "24", NULL);
+      break;
+    case TWENTYEIGHT:
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "28", NULL);
+      break;
+    }
     break;
   case 2:
     menu_cell_basic_draw(ctx, cell_layer, "Exit Settings", "",
@@ -60,11 +69,14 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
     break;
   case 1: // Font Size
     switch (font_size) {
+    case FOURTEEN:
+      font_size = TWENTYFOUR;
+      break;
     case TWENTYFOUR:
       font_size = TWENTYEIGHT;
       break;
     case TWENTYEIGHT:
-      font_size = TWENTYFOUR;
+      font_size = FOURTEEN;
       break;
     }
     update_font_layer_size(p_to_main_text_layer);
@@ -78,6 +90,12 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
     break;
   }
 }
+// void settings_back_click_handler(ClickRecognizerRef recognizer, void
+// *context) {
+//   layer_remove_from_parent(menu_layer_get_layer(menu_layer));
+//   window_set_click_config_provider(p_to_window,
+//                                    (ClickConfigProvider)click_cofig);
+// }
 
 void settings_page_create(Window *window, GRect frame, TextLayer *textlayer,
                           void (*window_click_config)(void *context)) {
@@ -98,6 +116,8 @@ void settings_page_create(Window *window, GRect frame, TextLayer *textlayer,
 }
 void settings_page_open(Window *window) {
   menu_layer_set_click_config_onto_window(menu_layer, window);
+  // window_single_click_subscribe(BUTTON_ID_BACK,
+  //                               (ClickHandler)settings_back_click_handler);
   layer_add_child(window_get_root_layer(window),
                   menu_layer_get_layer(menu_layer));
   layer_mark_dirty(menu_layer_get_layer(menu_layer));
@@ -123,6 +143,9 @@ void update_font_layer_size(TextLayer *text_layer) {
 
     text_layer_set_font(text_layer,
                         fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  } else if (get_font_size() == FOURTEEN) {
+    text_layer_set_font(text_layer,
+                        fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
   }
 }
 

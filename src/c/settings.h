@@ -5,7 +5,7 @@
 #include <pebble.h>
 #include <stdint.h>
 
-typedef enum FontSize { TWENTYFOUR, TWENTYEIGHT } FontSize;
+typedef enum FontSize { FOURTEEN, TWENTYFOUR, TWENTYEIGHT } FontSize;
 
 void settings_page_create(Window *window, GRect frame, TextLayer *textlayer,
                           void (*window_click_config)(void *context));
