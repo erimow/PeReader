@@ -218,9 +218,20 @@ static void window_load(Window *window) {
   skip_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PERCENT);
   gear_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GEAR);
 
+  page_text_layer =
+      text_layer_create(GRect(0, bounds.size.h - 19, bounds.size.w, 19));
+  text_layer_set_font(page_text_layer,
+                      fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  // text_layer_set_overflow_mode(page_text_layer, GTextOverflowModeWordWrap);
+  text_layer_set_text_alignment(page_text_layer, GTextAlignmentRight);
+  text_layer_set_background_color(page_text_layer, GColorClear);
+
+  layer_add_child(window_layer, text_layer_get_layer(page_text_layer));
+
   text_layer = text_layer_create(bounds);
   update_font_layer_size(text_layer);
   text_layer_set_overflow_mode(text_layer, GTextOverflowModeWordWrap);
+  text_layer_set_background_color(text_layer, GColorClear);
 
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
   if (persist_exists(PERSIST_KEY_PAGE)) {
@@ -233,16 +244,6 @@ static void window_load(Window *window) {
                         "SETTINGS"); // set default text when no book has been
                                      // uploaded
   }
-
-  page_text_layer =
-      text_layer_create(GRect(0, bounds.size.h - 19, bounds.size.w, 19));
-  text_layer_set_font(page_text_layer,
-                      fonts_get_system_font(FONT_KEY_GOTHIC_18));
-  // text_layer_set_overflow_mode(page_text_layer, GTextOverflowModeWordWrap);
-  text_layer_set_text_alignment(page_text_layer, GTextAlignmentRight);
-  text_layer_set_background_color(page_text_layer, GColorClear);
-
-  layer_add_child(window_layer, text_layer_get_layer(page_text_layer));
 
   time_text_layer = text_layer_create(GRect(0, 0, bounds.size.w - 30, 40));
   text_layer_set_text_alignment(time_text_layer, GTextAlignmentCenter);
