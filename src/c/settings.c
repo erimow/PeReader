@@ -35,16 +35,19 @@ void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer,
   case 1:
     switch (font_size) {
     case FOURTEEN:
-      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "14", NULL);
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "GOTHIC - 14", NULL);
       break;
     case EIGHTEEN:
-      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "18", NULL);
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "GOTHIC - 18", NULL);
       break;
     case TWENTYFOUR:
-      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "24", NULL);
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "GOTHIC - 24", NULL);
       break;
     case TWENTYEIGHT:
-      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "28", NULL);
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "GOTHIC - 28", NULL);
+      break;
+    case ROBOTO_TWENTYONE:
+      menu_cell_basic_draw(ctx, cell_layer, "Font Size", "ROBOTO - 21", NULL);
       break;
     }
     break;
@@ -82,6 +85,9 @@ void menu_select_callback(MenuLayer *menulayer, MenuIndex *cell_index,
       font_size = TWENTYEIGHT;
       break;
     case TWENTYEIGHT:
+      font_size = ROBOTO_TWENTYONE;
+      break;
+    case ROBOTO_TWENTYONE:
       font_size = FOURTEEN;
       break;
     }
@@ -155,6 +161,9 @@ void update_font_layer_size(TextLayer *text_layer) {
   } else if (get_font_size() == EIGHTEEN) {
     text_layer_set_font(text_layer,
                         fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  } else if (get_font_size() == ROBOTO_TWENTYONE) {
+    text_layer_set_font(text_layer,
+                        fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   }
 }
 
