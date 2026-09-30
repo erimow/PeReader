@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-let MAX_PAGE_LENGTH = 90; // SAFE for Pebble
+let MAX_PAGE_LENGTH = 90; // default page length (Better for lower res watches) 
 
 // ===== STATE =====
 let pages = [];
@@ -18,32 +18,34 @@ function loadBook() {
     }
 }
 
-// ===== PAGE SPLITTING =====
-function splitIntoPages(text, maxLength = MAX_PAGE_LENGTH) {
-  const paragraphs = text.split(/\\n+/);
-  const pages = [];
+// // ===== PAGE SPLITTING =====
+// function splitIntoPages(text, maxLength = MAX_PAGE_LENGTH) {
+//   const paragraphs = text.split(/\\n+/);
+//   const pages = [];
+//
+//   paragraphs.forEach(p => {
+//     if (!p.trim()) return; // skip empty paragraphs
+//
+//     let words = p.split(/\\s+/);
+//     let current = "";
+//
+//     words.forEach(word => {
+//       if ((current + word).length > maxLength) {
+//         pages.push(current.trim());
+//         current = "";
+//       }
+//       current += word + " ";
+//     });
+//
+//     if (current.trim()) {
+//       pages.push(current.trim());
+//     }
+//   });
+//
+//   return pages;
+// }
+//
 
-  paragraphs.forEach(p => {
-    if (!p.trim()) return; // skip empty paragraphs
-
-    let words = p.split(/\\s+/);
-    let current = "";
-
-    words.forEach(word => {
-      if ((current + word).length > maxLength) {
-        pages.push(current.trim());
-        current = "";
-      }
-      current += word + " ";
-    });
-
-    if (current.trim()) {
-      pages.push(current.trim());
-    }
-  });
-
-  return pages;
-}
 
 // ===== SEND PAGE TO WATCH =====
 function sendPage() {
@@ -91,13 +93,13 @@ Pebble.addEventListener("showConfiguration", function() {
     <body style="font-family: sans-serif; padding: 20px;">
       <h2 style="color: white;">PeReader Upload</h2>
 
-      <label for="fileupload" style="color: white;">Upload TXT file below</label>
-      <br>
-      <input type="file" id="fileInput" accept=".txt" />
-      <br><br>
       <label for="maxlength" style="color: white;">Set the maximum amount of characters per page.\n (90 seems to work well for smaller screens ie. time/steel)\n</label>
       <br>
       <input type="number" id="maxlength" name="Max Length" min="10" max="500" value="90"/>
+      <br><br>
+      <label for="fileupload" style="color: white;">Upload TXT file below</label>
+      <br>
+      <input type="file" id="fileInput" accept=".txt" />
       <br><br>
       <label for="uploadbutton" style="color: white;">Then Upload\n</label>
       <br>
@@ -111,23 +113,37 @@ Pebble.addEventListener("showConfiguration", function() {
 
         function splitIntoPages(text, maxLength = document.getElementById("maxlength").value) {
           max_length = maxLength;
-          const paragraphs = text.split(/\\n+/);
-          const pages = [];
 
-          paragraphs.forEach(p => {
-            let words = p.split(/\\s+/);
+          //PARAGRAPH METHOD
+          // const paragraphs = text.split(/\\n+/);
+          // const pages = [];
+          //
+          // paragraphs.forEach(p => {
+          //   let words = p.split(/\\s+/);
+          //   let current = "";
+          //
+          //   words.forEach(word => {
+          //     if ((current + word).length > maxLength) {
+          //       pages.push(current.trim());
+          //       current = "";
+          //     }
+          //     current += word + " ";
+          //   });
+          //  if (current) pages.push(current.trim());
+          //});
+          
+          //NEW WORD METHOD TEST
+            const pages = [];
+            let words = text.split(/\\s+/);
             let current = "";
-
             words.forEach(word => {
               if ((current + word).length > maxLength) {
-                pages.push(current.trim());
-                current = "";
+                pages.push(current);
+                current= "";
               }
-              current += word + " ";
+                current += word + " ";
             });
-
             if (current) pages.push(current.trim());
-          });
 
           return pages;
         }
@@ -202,4 +218,4 @@ Pebble.addEventListener("webviewclosed", function(e) {
 Pebble.addEventListener("ready", function() {
   console.log("PebbleKit JS ready!");
   loadBook();
-});
+});smaller
