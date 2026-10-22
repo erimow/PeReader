@@ -97,6 +97,14 @@ Pebble.addEventListener("showConfiguration", function() {
       <br>
       <input type="number" id="maxlength" name="Max Length" min="10" max="500" value="90"/>
       <br><br>
+      <label for="parseStyle" style="color: white;">Parse Style</label>
+      <br>
+      <select name="parseDropDown" id="parseStyle">
+      <option value="spacing">Keep Paragraph Spacing</option>
+      <option value="paragraph">Pages By Paragraphs</option>
+      <option value="nothing">No Paragraph Spacing</option>
+      </select>
+      <br><br>
       <label for="fileupload" style="color: white;">Upload TXT file below</label>
       <br>
       <input type="file" id="fileInput" accept=".txt" />
@@ -111,30 +119,73 @@ Pebble.addEventListener("showConfiguration", function() {
         let processedPages = [];
         let max_length = 90;
 
-        function splitIntoPages(text, maxLength = document.getElementById("maxlength").value) {
+        function pageDebug(text){
+          document.getElementById('errorlabel').innerHTML = text;
+        }
+
+        function splitIntoPagesSpacing(text, maxLength = document.getElementById("maxlength").value) {
+          max_length = maxLength;
+          var pages = [];
+  
+          var rawWords = text.split(' ');
+          var current = "";
+
+          for (var i = 0; i < rawWords.length; i++) {
+            var word = rawWords[i];
+            if (!word) continue;
+
+            word = word.replace(/\\\\r\\\\n/g, "\\\\n");
+
+            if ((current + word).length > maxLength) {
+              pages.push(current.trim());
+              current = "";
+            }
+
+            current += word + " ";
+          }
+
+          if (current.trim()) {
+            pages.push(current.trim());
+          }
+
+          return pages;
+        }
+
+
+
+        function splitIntoPagesParagraph(text, maxLength = document.getElementById("maxlength").value) {
           max_length = maxLength;
 
           //PARAGRAPH METHOD
-          // const paragraphs = text.split(/\\n+/);
-          // const pages = [];
-          //
-          // paragraphs.forEach(p => {
-          //   let words = p.split(/\\s+/);
-          //   let current = "";
-          //
-          //   words.forEach(word => {
-          //     if ((current + word).length > maxLength) {
-          //       pages.push(current.trim());
-          //       current = "";
-          //     }
-          //     current += word + " ";
-          //   });
-          //  if (current) pages.push(current.trim());
-          //});
-          
+           const paragraphs = text.split(/\\n+/);
+           var pages = [];
+
+           paragraphs.forEach(p => {
+             let words = p.split(/\\s+/);
+             let current = "";
+
+             words.forEach(word => {
+               if ((current + word).length > maxLength) {
+                 pages.push(current.trim());
+                 current = "";
+               }
+               current += word + " ";
+             });
+            if (current) pages.push(current.trim());
+          });
+
+
+          return pages;
+        }
+        
+        
+        function splitIntoPagesNothing(text, maxLength = document.getElementById("maxlength").value) {
+          max_length = maxLength;
+
           //NEW WORD METHOD TEST
-            const pages = [];
+            var pages = [];
             let words = text.split(/\\s+/);
+            pageDebug("split worked!");
             let current = "";
             words.forEach(word => {
               if ((current + word).length > maxLength) {
@@ -144,9 +195,9 @@ Pebble.addEventListener("showConfiguration", function() {
                 current += word + " ";
             });
             if (current) pages.push(current.trim());
-
-          return pages;
-        }
+            
+            return pages;
+            }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
           const file = e.target.files[0];
@@ -160,29 +211,45 @@ Pebble.addEventListener("showConfiguration", function() {
             //   .replace(/\\u2028|\\u2029/g, "\\n")
             //   .replace(/\\u0000/g, "");
             
-            processedPages = splitIntoPages(text);
+            switch(document.getElementById('parseStyle').value){
+              case "spacing":
+                processedPages = splitIntoPagesSpacing(text);
+                pageDebug("Spacing");
+              break;
+              case "paragraph":
+                processedPages = splitIntoPagesParagraph(text);
+                pageDebug("Paragraph");
+              break;
+              case "nothing":
+                processedPages = splitIntoPagesNothing(text);
+                pageDebug("Nothing");
+              break;
+              default:
+                processedPages = splitIntoPagesSpacing(text);
+            }
 
             alert("Ready! Pages: " + processedPages.length);
+                       
           };
 
           reader.readAsText(file, "UTF-8");
         });
 
         document.getElementById('uploadBtn').addEventListener('click', function() {
-          if (!processedPages.length) {
+            if (!processedPages.length) {
             alert("Select a file first!");
             document.getElementById('errorlabel').innerHTML = "Select a file first!";
             return;
-          }
-           
-          //const payload = JSON.stringify({ pages: processedPages });
-          //document.getElementById('errorlabel').innerHTML = "JSON Success, length = " + payload.length + "encode length = " + encodeURIComponent(payload).length;
+            }
 
-
-          document.location = "pebblejs://close#" + encodeURIComponent(JSON.stringify({
+            var payloadString = JSON.stringify({
             pages: processedPages,
             maxlength: max_length
-          }));
+          });
+
+          var safePayload = encodeURIComponent(payloadString);
+
+          document.location = "pebblejs://close#" + safePayload;
         });
       </script>
     </body>
